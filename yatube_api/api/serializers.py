@@ -11,6 +11,7 @@ class PostSerializer(serializers.ModelSerializer):
     Предоставляет преобразование данных модели Post в формат JSON и обратно,
     с отображением автора поста через его имя пользователя.
     """
+
     author = SlugRelatedField(slug_field='username', read_only=True)
 
     class Meta:
@@ -26,13 +27,14 @@ class CommentSerializer(serializers.ModelSerializer):
     показывая автора комментария через его имя пользователя.
     Пост, к которому относится комментарий, доступен только для чтения.
     """
+
     author = serializers.SlugRelatedField(
         read_only=True, slug_field='username'
     )
-    post = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         fields = '__all__'
+        read_only_fields = ('post',)
         model = Comment
 
 
@@ -43,6 +45,7 @@ class GroupSerializer(serializers.ModelSerializer):
     Обеспечивает преобразование данных модели Group в JSON-формат и обратно,
     включая все поля модели.
     """
+
     class Meta:
         fields = '__all__'
         model = Group
@@ -55,6 +58,7 @@ class FollowSerializer(serializers.ModelSerializer):
     Позволяет пользователям подписываться на авторов.
     Содержит проверки уникальности подписки и запрет подписки на самого себя.
     """
+
     user = serializers.SlugRelatedField(
         read_only=True,
         slug_field='username',
@@ -76,12 +80,12 @@ class FollowSerializer(serializers.ModelSerializer):
             )
         ]
 
-    def validate_following(self, value):
+    def validate_following(self, target_user):
         """
         Проверяет, что пользователь не пытается подписаться на самого себя.
 
         Args:
-            value: Объект пользователя, на которого происходит подписка.
+            target_user: Объект пользователя, на которого происходит подписка.
 
         Returns:
             Объект пользователя, если проверка пройдена успешно.
@@ -89,8 +93,8 @@ class FollowSerializer(serializers.ModelSerializer):
         Raises:
             ValidationError: При попытке подписаться на самого себя.
         """
-        if self.context['request'].user == value:
+        if self.context['request'].user == target_user:
             raise serializers.ValidationError(
                 'Нельзя подписаться на самого себя'
             )
-        return value
+        return target_user
