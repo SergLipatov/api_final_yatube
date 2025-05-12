@@ -93,3 +93,9 @@ GET /api/v1/posts/1/comments/
 ```
 
 Для использования API требуется аутентификация через JWT-токен, который можно получить используя эндпоинты Djoser.
+
+## Автор
+
+**Сергей Липатов**
+
+GitHub: [@SergLipatov](https://github.com/SergLipatov)
